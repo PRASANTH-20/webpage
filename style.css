@@ -1,0 +1,93 @@
+body{
+	background-color: #ffffff;
+	background-image: linear-gradient(-315deg, #ffffff 0%, #91a6ff 74%);
+}
+h1{
+	text-align: center;
+}
+#menu>h4{
+	padding-right: 15px;
+}
+#menu{
+	padding-top: 25px;
+	color: floralwhite;
+	font-size: 21px;
+	padding-bottom: 30px;
+}
+
+#tit{
+	border:floralwhite;
+	padding:35px;
+
+	background-color: red; 
+	font-size: 45px; 
+	border:2em; 
+	width: 75%;
+	
+
+}
+header{
+	
+	background-image:url("Broadcast-Media-Mass-Communication.jpg");
+	background-size: 100%;
+	background-repeat: no-repeat;
+	height: 450px;
+}
+/*header{
+	color: white;
+	background-image: url("Broadcast-Media-Mass-Communication.jpg");
+	background-size: 100%;
+	background-repeat: no-repeat;
+	padding:17%;
+	border-bottom: 3px solid;
+	opacity: 85%;
+}*/
+.context{ 
+	border: 3px solid; white;
+ 	width: fit-content;
+  	font-size: 20px;
+ 	color: ghostwhite;
+  	opacity: 100%;
+   	margin-left: 1.5%; 
+   }
+#link:link{
+	color: ghostwhite;
+}
+#link:hover{
+	color: Yellow;
+}
+#link:visited{
+	color: black;
+}
+#c1:hover{
+	opacity: 60%;
+	font-weight: bolder;
+	}
+#c2:hover{
+	opacity: 60%;
+	font-weight: bolder;
+	}
+#c3:hover{
+	opacity: 60%;
+	font-weight: bolder;
+}
+/*#c4:hover{
+	opacity: 60%;
+	font-weight: bolder;
+}*/
+#c1,#c2,#c3{
+	display: inline;
+	border: 20px;
+	padding:35px;
+	text-align: center;
+	background-color:red ;
+}
+
+footer{
+	margin-top: 70px;
+	padding: 13px;
+	border-top: 3px solid ;
+	background-color: black;
+
+
+}
