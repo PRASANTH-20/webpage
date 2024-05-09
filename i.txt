@@ -1,0 +1,295 @@
+#Tpyramid
+import cv2
+import numpy as np 
+img  = cv2.imread("spacex.jpg")
+levels = 5
+pyramid  = [img]
+for _ in range(levels-1):
+    img = cv2.pyrDown(img)
+    pyramid.append(img)
+for i,img in enumerate(pyramid):
+    cv2.imshow(f"Levels {i}",img)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+------------------------------------------
+#Quad tree
+import matplotlib.pyplot as plt
+import cv2
+import numpy as np 
+img = cv2.imread("spacex.jpg")
+from operator import add
+from functools import reduce 
+half = np.array_split(img,2)
+res = map(lambda x:np.array_split(x,2,axis=1),half)
+split = reduce(add,res)
+fig,axs = plt.subplots(2,2)
+axs[0,0].imshow(split[0])
+axs[0,1].imshow(split[1])
+axs[1,0].imshow(split[2])
+axs[1,1].imshow(split[3])
+plt.show()
+top = np.concatenate((split[0],split[1]),axis=1)
+bottom = np.concatenate((split[2],split[3]),axis=1)
+full = np.concatenate((top,bottom),axis=0)
+plt.imshow(full)
+plt.show()
+
+----------------------------------------------------------------------
+#Geometric transformation
+import cv2
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Read the image
+image = cv2.imread("face.webp")
+
+# Rotate the image by 90 degrees clockwise
+#rotatedImage = cv2.rotate(image, cv2.ROTATE_90_CLOCKWISE)
+
+
+rotateMatrix = cv2.getRotationMatrix2D((image.shape[0]/2,image.shape[1]/2),90,1)
+
+rotatedImage = cv2.warpAffine(image,rotateMatrix,(image.shape[0],image.shape[1])) 
+cv2.imshow("Rotated Image", rotatedImage)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+# Display the scale image
+scaleImage = cv2.resize(image,None,fx=0.5,fy=0.5)
+cv2.imshow("scale Image",scaleImage)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Display the Skewed image
+skewMatrix = np.float32([[1, 0.2, 0], [0.1, 1, 0]])
+skewImage = cv2.warpAffine(image, skewMatrix, (image.shape[1], image.shape[0]))
+
+cv2.imshow("Skew Image", skewImage)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Display the Skewed image
+src_points = np.float32([[50, 50], [200, 50], [50, 200]])
+dst_points = np.float32([[10, 100], [200, 50], [100, 250]])
+affineMatrix = cv2.getAffineTransform(src_points, dst_points)
+affineImage = cv2.warpAffine(image, affineMatrix, (image.shape[1], image.shape[0]))
+
+cv2.imshow("Affine Image", affineImage)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+# Display the Bilinear image
+
+src = np.float32([[100,100],[10,1500],[2600,1500],[2500,250]])
+dest = np.float32([[0,500],[500,1600],[2700,100],[2000,5]])
+
+biliearMatrix  = cv2.getPerspectiveTransform(src,dest)
+bilinearImage = cv2.warpPerspective(image,biliearMatrix,(image.shape[1],image.shape[0]))
+
+cv2.imshow("bilinear Image",bilinearImage)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+------------------------------------------------------------------------
+#Object detection
+
+import torch 
+from PIL import Image
+import cv2 
+model = torch.hub.load("ultralytics/yolov5",'yolov5s')
+img = Image.open("spacex.jpg")
+result = model(img)
+result.show()
+---------------------------------------------------------------------------
+#Edge detection 
+
+import cv2
+def motion(path):
+    cap = cv2.VideoCapture(path)
+    ret,prev_frame = cap.read()
+    prev_gray = cv2.cvtColor(prev_frame,cv2.COLOR_BGR2GRAY)
+    while cap.isOpened():
+        ret,frame = cap.read()
+        if not ret: break
+        frame_gray = cv2.cvtColor(frame,cv2.COLOR_BGR2GRAY)
+        edge_prev = cv2.Canny(prev_gray,50,150)
+        edge = cv2.Canny(frame_gray,50,150)
+        diff = cv2.absdiff(edge_prev,edge)
+        cv2.imshow("Moving edges",diff)
+        if cv2.waitKey(30)&0xFF == ord('q'):
+            break
+        prev_gray = frame_gray.copy()
+    cap.release()
+    cv2.destroyAllWindows()
+path="camera.mp4"
+motion(path)
+---------------------------------------------------------------------------
+#Event detection 
+
+import cv2
+cap = cv2.VideoCapture("camera.mp4")
+bgSubtractor = cv2.createBackgroundSubtractorMOG2()
+while cap.isOpened():
+    ret,frame = cap.read()
+    if not ret :
+        break
+    mask = bgSubtractor.apply(frame)
+    _,threshold = cv2.threshold(mask,50,255,cv2.THRESH_BINARY)
+    contours,_ = cv2.findContours(threshold,cv2.RETR_EXTERNAL,cv2.CHAIN_APPROX_SIMPLE)
+    for contour in contours:
+        if(cv2.contourArea(contour)>100):
+            x,y,w,h = cv2.boundingRect(contour)
+            cv2.rectangle(frame,(x,y),(x+w,y+h),(0,255,0),2)
+            cv2.imshow('video',frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+cap.release()
+cv2.destroyAllWindows()
+----------------------------------------------------------------------------------
+#smoothing                                                                                                                                                         import cv2
+import matplotlib.pyplot as plt
+image = cv2.imread('x.jpg')
+plt.imshow(image)
+gaussian_blur = cv2.GaussianBlur(image, (5, 5), 0)
+median_blur = cv2.medianBlur(image, 5)
+cv2.imshow("img",image)
+cv2.imshow("img1",gaussian_blur)
+cv2.imshow("img2",median_blur)
+cv2.waitKey(0) 
+cv2.destroyAllWindows()
+-------------------------------------------------------------------------------------
+#line detection 
+import cv2
+import numpy as np
+
+image = cv2.imread('hell.jpeg')
+gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+blurImg = cv2.GaussianBlur(gray,(5,5),0)
+edges = cv2.Canny(blurImg,50,100)
+lines = cv2.HoughLinesP(edges,1,np.pi/180,100,10,5)
+
+if lines is not None:
+    for line in lines:
+        x1,y1,x2,y2 = line[0]
+        cv2.line(image,(x1,y1),(x2,y2),(0,255,0),2)
+cv2.imshow('Line',image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+-----------------------------------------
+#quadtree homogeneity
+import matplotlib.pyplot as plt
+import cv2
+import numpy as np
+
+def split_image(img):
+    # Check homogeneity criterion
+    if np.all(img == img[0, 0]):
+        return [img]
+    
+    # Split image into quadrants
+    height, width, _ = img.shape
+    half_height, half_width = height // 2, width // 2
+    
+    top_left = img[:half_height, :half_width]
+    top_right = img[:half_height, half_width:]
+    bottom_left = img[half_height:, :half_width]
+    bottom_right = img[half_height:, half_width:]
+    
+    # Recursively split quadrants
+    return split_image(top_left) + split_image(top_right) + split_image(bottom_left) + split_image(bottom_right)
+
+# Read the image
+img = cv2.imread("spacex.jpg")
+
+# Convert image to RGB (if it's in BGR format)
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Split image recursively
+quadtree = split_image(img)
+
+# Display each quadrant separately
+fig, axs = plt.subplots(2, 2)
+for i in range(4):
+    axs[i // 2, i % 2].imshow(quadtree[i])
+plt.show()
+
+# Display the full reconstructed image
+full_img = np.concatenate((np.concatenate((quadtree[0], quadtree[1]), axis=1),
+                           np.concatenate((quadtree[2], quadtree[3]), axis=1)), axis=0)
+plt.imshow(full_img)
+plt.show()
+----------------------------------------------------------------------------------
+#Face detection
+
+import cv2
+
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
+image = cv2.imread('media/people.jpg')
+
+gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=18, minSize=(30, 30))
+names = ['Person A','Person B','Person C','Person D']
+i=0
+for (x, y, w, h) in faces:
+    cv2.rectangle(image, (x, y), (x+w, y+h), (255, 255, 255), 3)
+    cv2.putText(image,names[i],(x,y),cv2.FONT_HERSHEY_SIMPLEX,1.3,(255,255,255),4)
+    i = i+1
+
+cv2.imshow('Face Detection',image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+----------------------------------------------------------------------------------
+#colab facial detection
+!pip install dlib
+!pip install face_recognition
+from google.colab.patches import cv2_imshow
+import face_recognition as fr
+import cv2
+import numpy as np
+import os
+path = "/content/drive/MyDrive/Colab Notebooks/train/"
+known_names = []
+known_name_encodings = []
+images = os.listdir(path)
+for _ in images:
+    image = fr.load_image_file(path + _)
+    image_path = path + _
+    encoding = fr.face_encodings(image)[0]
+
+    known_name_encodings.append(encoding)     known_names.append(os.path.splitext(os.path.basename(image_path))[0].capitalize())
+print(known_names)
+test_image = "/content/drive/MyDrive/Colab Notebooks/test/test.jpg"
+image = cv2.imread(test_image)
+if image is None:
+    raise ValueError("Image is not loaded.")
+face_locations = fr.face_locations(image, number_of_times_to_upsample=1)
+face_encodings = fr.face_encodings(image, face_locations)
+for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
+   matches = fr.compare_faces(known_name_encodings, face_encoding)
+   name = ""
+
+   face_distances = fr.face_distance(known_name_encodings, face_encoding)
+   best_match = np.argmin(face_distances)
+
+   if matches[best_match]:
+       name = known_names[best_match]
+
+   cv2.rectangle(image, (left, top), (right, bottom), (0, 0, 255), 2)
+   cv2.rectangle(image, (left, bottom - 15), (right, bottom), (0, 0, 255), cv2.FILLED)
+
+   font = cv2.FONT_HERSHEY_DUPLEX
+   cv2.putText(image, name, (left + 6, bottom - 6), font, 1.0, (255, 255, 255), 1)
+cv2_imshow(image)
+cv2.imwrite("/content/drive/MyDrive/Colab Notebooks/output/output.jpg", image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
